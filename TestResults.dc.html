@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/styles.css">
+<script src="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/_ds_bundle.js"></script>
+<style>
+  a { color: var(--color-accent-700); }
+  a:hover { color: var(--color-accent); }
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);">
+  <dc-import name="NavBar" active="test" hint-size="100%,64px"></dc-import>
+
+  <div style="max-width:760px;margin:0 auto;padding:var(--space-8) var(--space-6);">
+    <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);margin-bottom:var(--space-7);">
+      <h1 style="font-family:var(--font-heading);font-size:36px;font-weight:700;margin:0 0 var(--space-2);">Test strip results</h1>
+      <p style="font-size:15px;opacity:0.7;margin:0;">Enter what your test strip reads and we'll tell you exactly what — and how much — to add.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--space-6);">
+      <div class="card-kicker">Pool volume</div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin-top:var(--space-2);">
+        <div class="field" style="max-width:220px;"><label for="gallons">Gallons</label>
+          <input class="input" id="gallons" inputmode="numeric" value="{{gallons}}" onChange="{{ onGallonsChange }}"></div>
+        <a href="Profile.dc.html" style="font-size:13px;">Update from profile →</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-kicker">Your readings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-top:var(--space-2);">
+        <div class="field"><label for="fc">Free Chlorine (ppm)</label>
+          <input class="input" id="fc" inputmode="decimal" placeholder="e.g. 1.5" value="{{fc}}" onChange="{{ onFcChange }}"></div>
+        <div class="field"><label for="ph">pH</label>
+          <input class="input" id="ph" inputmode="decimal" placeholder="e.g. 7.4" value="{{ph}}" onChange="{{ onPhChange }}"></div>
+        <div class="field"><label for="ta">Total Alkalinity (ppm)</label>
+          <input class="input" id="ta" inputmode="decimal" placeholder="e.g. 100" value="{{ta}}" onChange="{{ onTaChange }}"></div>
+        <div class="field"><label for="cya">Cyanuric Acid (ppm) — optional</label>
+          <input class="input" id="cya" inputmode="decimal" placeholder="e.g. 40" value="{{cya}}" onChange="{{ onCyaChange }}"></div>
+      </div>
+      <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-4);" onClick="{{ getRecommendation }}">Get my recommendation</button>
+    </div>
+
+    <sc-if value="{{hasResults}}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;gap:var(--space-4);margin-top:var(--space-6);">
+        <sc-for list="{{recs}}" as="r" hint-placeholder-count="3">
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);">
+              <div class="card-kicker">{{r.param}} · {{r.reading}}</div>
+              <span class="{{r.tagClass}}">{{r.tagText}}</span>
+            </div>
+            <p class="card-body">{{r.message}}</p>
+            <sc-if value="{{r.hasProduct}}" hint-placeholder-val="{{ false }}">
+              <button type="button" class="btn btn-secondary" onClick="{{ r.add }}">{{r.addLabel}}</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const TARGETS = { fc: 3, ph: 7.4, ta: 100, cya: 40 };
+
+class Component extends DCLogic {
+  state = { gallons: '15000', fc: '1', ph: '7.8', ta: '70', cya: '25', hasResults: false, addedMap: {} };
+  componentDidMount() {
+    try { const pool = JSON.parse(localStorage.getItem('pw_pool')); if (pool && pool.gallons) this.setState({ gallons: String(pool.gallons) }); } catch (e) {}
+  }
+  num(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  onGallonsChange = e => this.setState({ gallons: e.target.value });
+  onFcChange = e => this.setState({ fc: e.target.value });
+  onPhChange = e => this.setState({ ph: e.target.value });
+  onTaChange = e => this.setState({ ta: e.target.value });
+  onCyaChange = e => this.setState({ cya: e.target.value });
+  getRecommendation = () => this.setState({ hasResults: true });
+
+  fmtFluid(oz) { if (oz < 32) return oz.toFixed(1) + ' fl oz'; if (oz < 128) return (oz / 32).toFixed(1) + ' qt'; return (oz / 128).toFixed(1) + ' gal'; }
+  fmtWeight(oz) { return (oz / 16).toFixed(1) + ' lb'; }
+
+  addToCart(id, name, price, qty) {
+    let cart = [];
+    try { cart = JSON.parse(localStorage.getItem('pw_cart') || '[]'); } catch (e) {}
+    const idx = cart.findIndex(c => c.id === id);
+    if (idx >= 0) cart[idx] = { ...cart[idx], qty: cart[idx].qty + qty };
+    else cart.push({ id, name, price, qty });
+    localStorage.setItem('pw_cart', JSON.stringify(cart));
+    this.setState(s => ({ addedMap: { ...s.addedMap, [id]: true } }));
+  }
+
+  buildRecs() {
+    const s = this.state;
+    const gallons = this.num(s.gallons) || 10000;
+    const scale = gallons / 10000;
+    const fc = this.num(s.fc), ph = this.num(s.ph), ta = this.num(s.ta), cya = this.num(s.cya);
+    const recs = [];
+
+    if (fc < 1) {
+      const oz = (TARGETS.fc - fc) * 10 * scale;
+      const jugs = Math.max(1, Math.ceil(oz / 128));
+      recs.push({ param: 'Free Chlorine', reading: fc + ' ppm', status: 'low',
+        message: `Low. Add about ${this.fmtFluid(oz)} of liquid chlorine (10%) to bring it up to the target of 3 ppm.`,
+        productId: 'liquid-chlorine', productName: 'Liquid Chlorine 10%', price: 9.99, qty: jugs, unitLabel: jugs + ' jug' + (jugs > 1 ? 's' : '') });
+    } else if (fc > 4) {
+      recs.push({ param: 'Free Chlorine', reading: fc + ' ppm', status: 'high',
+        message: `High. Hold off on adding more chlorine — and swimming — until it drifts back under 4 ppm on its own.` });
+    } else {
+      recs.push({ param: 'Free Chlorine', reading: fc + ' ppm', status: 'good', message: 'In range (1–4 ppm). Nothing to add.' });
+    }
+
+    if (ph < 7.2) {
+      const oz = ((7.4 - ph) / 0.2) * 6 * scale;
+      const bags = Math.max(1, Math.ceil(oz / 16 / 5));
+      recs.push({ param: 'pH', reading: ph.toString(), status: 'low',
+        message: `Low. Add about ${this.fmtWeight(oz)} of pH Increaser (soda ash) to bring it up to 7.4.`,
+        productId: 'soda-ash', productName: 'pH Increaser', price: 12.99, qty: bags, unitLabel: bags + ' bag' + (bags > 1 ? 's' : '') });
+    } else if (ph > 7.6) {
+      const oz = ((ph - 7.4) / 0.2) * 32 * scale;
+      const jugs = Math.max(1, Math.ceil(oz / 128));
+      recs.push({ param: 'pH', reading: ph.toString(), status: 'high',
+        message: `High. Add about ${this.fmtFluid(oz)} of muriatic acid to bring it down to 7.4.`,
+        productId: 'muriatic-acid', productName: 'Muriatic Acid', price: 8.49, qty: jugs, unitLabel: jugs + ' jug' + (jugs > 1 ? 's' : '') });
+    } else {
+      recs.push({ param: 'pH', reading: ph.toString(), status: 'good', message: 'In range (7.2–7.6). Nothing to add.' });
+    }
+
+    if (ta < 80) {
+      const oz = ((100 - ta) / 10) * 1.5 * 16 * scale;
+      const bags = Math.max(1, Math.ceil(oz / 16 / 10));
+      recs.push({ param: 'Alkalinity', reading: ta + ' ppm', status: 'low',
+        message: `Low. Add about ${this.fmtWeight(oz)} of Alkalinity Increaser to bring it up to 100 ppm.`,
+        productId: 'baking-soda', productName: 'Alkalinity Increaser', price: 16.99, qty: bags, unitLabel: bags + ' bag' + (bags > 1 ? 's' : '') });
+    } else if (ta > 120) {
+      recs.push({ param: 'Alkalinity', reading: ta + ' ppm', status: 'high',
+        message: 'High. There\u2019s no chemical to lower this directly — a partial drain and refill with fresh water is the fix.' });
+    } else {
+      recs.push({ param: 'Alkalinity', reading: ta + ' ppm', status: 'good', message: 'In range (80–120 ppm). Nothing to add.' });
+    }
+
+    if (s.cya.trim() !== '') {
+      if (cya < 30) {
+        const oz = ((40 - cya) / 10) * 13 * scale;
+        const bags = Math.max(1, Math.ceil(oz / 16 / 4));
+        recs.push({ param: 'Stabilizer (CYA)', reading: cya + ' ppm', status: 'low',
+          message: `Low. Add about ${this.fmtWeight(oz)} of Pool Conditioner to bring it up to 40 ppm.`,
+          productId: 'stabilizer', productName: 'Pool Conditioner (CYA)', price: 19.99, qty: bags, unitLabel: bags + ' bag' + (bags > 1 ? 's' : '') });
+      } else if (cya > 50) {
+        recs.push({ param: 'Stabilizer (CYA)', reading: cya + ' ppm', status: 'high',
+          message: 'High. Chlorine works less efficiently above 50 ppm — a partial drain and refill will bring it back down.' });
+      } else {
+        recs.push({ param: 'Stabilizer (CYA)', reading: cya + ' ppm', status: 'good', message: 'In range (30–50 ppm). Nothing to add.' });
+      }
+    }
+    return recs;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const rawRecs = s.hasResults ? this.buildRecs() : [];
+    const recs = rawRecs.map(r => ({
+      param: r.param, reading: r.reading, message: r.message,
+      tagClass: r.status === 'good' ? 'tag tag-neutral' : 'tag tag-accent',
+      tagText: r.status === 'good' ? 'Good' : r.status === 'low' ? 'Needs attention · Low' : 'Needs attention · High',
+      hasProduct: !!r.productId,
+      addLabel: r.productId ? (s.addedMap[r.productId] ? 'Added ✓' : `Add ${r.unitLabel} to cart — $${(r.price * r.qty).toFixed(2)}`) : '',
+      add: r.productId ? () => this.addToCart(r.productId, r.productName, r.price, r.qty) : null,
+    }));
+    return {
+      gallons: s.gallons, fc: s.fc, ph: s.ph, ta: s.ta, cya: s.cya, hasResults: s.hasResults, recs,
+      onGallonsChange: this.onGallonsChange, onFcChange: this.onFcChange, onPhChange: this.onPhChange,
+      onTaChange: this.onTaChange, onCyaChange: this.onCyaChange, getRecommendation: this.getRecommendation,
+    };
+  }
+}
+</script>
+</body>
+</html>

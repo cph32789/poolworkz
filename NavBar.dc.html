@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/styles.css">
+<script src="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/_ds_bundle.js"></script>
+</helmet>
+<nav class="nav" style="padding:0 var(--space-8);font-family:var(--font-body);">
+  <a href="Home.dc.html" class="nav-brand" style="text-decoration:none;font-weight:700;letter-spacing:0.02em;">POOLWORKZ</a>
+  <a href="Home.dc.html" aria-current="{{homeCurrent}}">Shop</a>
+  <a href="Profile.dc.html" aria-current="{{profileCurrent}}">Profile</a>
+  <a href="TestResults.dc.html" aria-current="{{testCurrent}}">Test Results</a>
+  <a href="PoolGenie.dc.html" aria-current="{{genieCurrent}}">Pool Genie</a>
+  <a href="Blog.dc.html" aria-current="{{blogCurrent}}">Blog</a>
+  <a href="Home.dc.html#cart" class="btn btn-ghost btn-icon" aria-label="Cart" style="position:relative;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+    <sc-if value="{{hasItems}}" hint-placeholder-val="{{ false }}">
+      <span style="position:absolute;top:2px;right:2px;background:var(--color-accent);color:#fff;font-size:10px;font-weight:700;min-width:15px;height:15px;line-height:15px;text-align:center;padding:0 2px;">{{cartCount}}</span>
+    </sc-if>
+  </a>
+</nav>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;home&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;profile&quot;,&quot;test&quot;,&quot;genie&quot;,&quot;blog&quot;],&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { cartCount: 0 };
+  componentDidMount() {
+    try {
+      const cart = JSON.parse(localStorage.getItem('pw_cart') || '[]');
+      this.setState({ cartCount: cart.reduce((s, i) => s + (i.qty || 0), 0) });
+    } catch (e) {}
+  }
+  renderVals() {
+    const a = this.props.active;
+    return {
+      homeCurrent: a === 'home' ? 'page' : null,
+      profileCurrent: a === 'profile' ? 'page' : null,
+      testCurrent: a === 'test' ? 'page' : null,
+      genieCurrent: a === 'genie' ? 'page' : null,
+      blogCurrent: a === 'blog' ? 'page' : null,
+      cartCount: this.state.cartCount,
+      hasItems: this.state.cartCount > 0,
+    };
+  }
+}
+</script>
+</body>
+</html>

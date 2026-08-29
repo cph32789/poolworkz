@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/styles.css">
+<script src="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/_ds_bundle.js"></script>
+<style>
+  a { color: var(--color-accent-700); }
+  a:hover { color: var(--color-accent); }
+  select.input { appearance: auto; }
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);">
+  <dc-import name="NavBar" active="profile" hint-size="100%,64px"></dc-import>
+
+  <div style="max-width:760px;margin:0 auto;padding:var(--space-8) var(--space-6);">
+    <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);margin-bottom:var(--space-7);">
+      <h1 style="font-family:var(--font-heading);font-size:36px;font-weight:700;margin:0 0 var(--space-2);">Your profile</h1>
+      <p style="font-size:15px;opacity:0.7;margin:0;">Account details and your pool's size — this is what we use to recommend the right amount of chemical.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--space-6);">
+      <div class="card-kicker">Account</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-top:var(--space-3);">
+        <div><div style="font-size:12px;opacity:0.6;">Name</div><div style="font-weight:600;">{{name}}</div></div>
+        <div><div style="font-size:12px;opacity:0.6;">Email</div><div style="font-weight:600;">{{email}}</div></div>
+        <div><div style="font-size:12px;opacity:0.6;">Delivery zip</div><div style="font-weight:600;">{{zip}}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-kicker">Pool details</div>
+      <div class="card-title" style="margin-bottom:var(--space-3);">Estimate your pool's volume</div>
+
+      <div class="field"><label id="shape-label" for="shape-select">Pool shape</label>
+        <select class="input" id="shape-select" value="{{shape}}" onChange="{{ onShapeChange }}">
+          <option value="rectangle">Rectangle</option>
+          <option value="oval">Oval</option>
+          <option value="circle">Round / Circle</option>
+          <option value="kidney">Kidney / Freeform</option>
+        </select>
+      </div>
+
+      <sc-if value="{{isCircle}}" hint-placeholder-val="{{ false }}">
+        <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+          <div class="field"><label for="diameter">Diameter (ft)</label>
+            <input class="input" id="diameter" inputmode="decimal" value="{{diameter}}" onChange="{{ onDiameterChange }}"></div>
+          <div class="field"><label for="depth-c">Average depth (ft)</label>
+            <input class="input" id="depth-c" inputmode="decimal" value="{{avgDepth}}" onChange="{{ onDepthChange }}"></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{isNotCircle}}" hint-placeholder-val="{{ true }}">
+        <div class="grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);">
+          <div class="field"><label for="length">Length (ft)</label>
+            <input class="input" id="length" inputmode="decimal" value="{{length}}" onChange="{{ onLengthChange }}"></div>
+          <div class="field"><label for="width">Width (ft)</label>
+            <input class="input" id="width" inputmode="decimal" value="{{width}}" onChange="{{ onWidthChange }}"></div>
+          <div class="field"><label for="depth">Average depth (ft)</label>
+            <input class="input" id="depth" inputmode="decimal" value="{{avgDepth}}" onChange="{{ onDepthChange }}"></div>
+        </div>
+      </sc-if>
+      <p style="font-size:12px;opacity:0.6;margin-top:-4px;">Average depth = (shallow end + deep end) ÷ 2.</p>
+
+      <div style="border-top:2px solid var(--color-divider);margin-top:var(--space-5);padding-top:var(--space-4);display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:var(--space-2);">
+        <span style="font-size:13px;opacity:0.65;">Estimated volume</span>
+        <span style="font-family:var(--font-heading);font-size:32px;font-weight:700;">{{gallonsLabel}} gal</span>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-5);" onClick="{{ save }}">{{saveLabel}}</button>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    name: 'Pool Owner', email: 'you@email.com', zip: '30301',
+    shape: 'rectangle', length: '32', width: '16', avgDepth: '5', diameter: '24',
+    saveLabel: 'Save pool details',
+  };
+  componentDidMount() {
+    try { const u = JSON.parse(localStorage.getItem('pw_user')); if (u) this.setState({ name: u.name || 'Pool Owner', email: u.email || 'you@email.com', zip: u.zip || '30301' }); } catch (e) {}
+    try {
+      const pool = JSON.parse(localStorage.getItem('pw_pool'));
+      if (pool) this.setState({ shape: pool.shape, length: String(pool.length ?? '32'), width: String(pool.width ?? '16'), avgDepth: String(pool.avgDepth ?? '5'), diameter: String(pool.diameter ?? '24') });
+    } catch (e) {}
+  }
+  num(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  computeGallons() {
+    const s = this.state;
+    const depth = this.num(s.avgDepth);
+    if (s.shape === 'circle') {
+      const r = this.num(s.diameter) / 2;
+      return Math.PI * r * r * depth * 7.5;
+    }
+    const l = this.num(s.length), w = this.num(s.width);
+    const multiplier = s.shape === 'oval' ? 6.7 : s.shape === 'kidney' ? 6.4 : 7.5;
+    return l * w * depth * multiplier;
+  }
+  onShapeChange = e => this.setState({ shape: e.target.value });
+  onLengthChange = e => this.setState({ length: e.target.value });
+  onWidthChange = e => this.setState({ width: e.target.value });
+  onDepthChange = e => this.setState({ avgDepth: e.target.value });
+  onDiameterChange = e => this.setState({ diameter: e.target.value });
+  save = () => {
+    const gallons = Math.round(this.computeGallons());
+    const s = this.state;
+    localStorage.setItem('pw_pool', JSON.stringify({ shape: s.shape, length: this.num(s.length), width: this.num(s.width), avgDepth: this.num(s.avgDepth), diameter: this.num(s.diameter), gallons }));
+    this.setState({ saveLabel: 'Saved ✓' });
+    setTimeout(() => this.setState({ saveLabel: 'Save pool details' }), 1800);
+  };
+  renderVals() {
+    const s = this.state;
+    return {
+      name: s.name, email: s.email, zip: s.zip, shape: s.shape,
+      isCircle: s.shape === 'circle', isNotCircle: s.shape !== 'circle',
+      length: s.length, width: s.width, avgDepth: s.avgDepth, diameter: s.diameter,
+      gallonsLabel: Math.round(this.computeGallons()).toLocaleString(),
+      saveLabel: s.saveLabel,
+      onShapeChange: this.onShapeChange, onLengthChange: this.onLengthChange, onWidthChange: this.onWidthChange,
+      onDepthChange: this.onDepthChange, onDiameterChange: this.onDiameterChange, save: this.save,
+    };
+  }
+}
+</script>
+</body>
+</html>

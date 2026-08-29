@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/styles.css">
+<script src="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+  a { color: var(--color-accent-700); }
+  a:hover { color: var(--color-accent); }
+  .grayscale { filter: grayscale(1); }
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);">
+  <dc-import name="NavBar" active="blog" hint-size="100%,64px"></dc-import>
+
+  <div style="max-width:760px;margin:0 auto;padding:var(--space-8) var(--space-6);">
+    <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);margin-bottom:var(--space-7);">
+      <h1 style="font-family:var(--font-heading);font-size:36px;font-weight:700;margin:0 0 var(--space-2);">The Poolworkz Blog</h1>
+      <p style="font-size:15px;opacity:0.7;margin:0;">Plain-English pool care, from the people who deliver your chemicals.</p>
+    </div>
+
+    <div style="display:grid;gap:var(--space-6);">
+      <sc-for list="{{articles}}" as="a" hint-placeholder-count="5">
+        <article style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);">
+          <div class="grayscale" style="width:100%;height:200px;margin-bottom:var(--space-4);">
+            <image-slot id="blog-{{a.id}}" shape="rect" placeholder="{{a.title}}"></image-slot>
+          </div>
+          <div class="card-kicker">{{a.category}} · {{a.meta}}</div>
+          <h2 style="font-family:var(--font-heading);font-size:24px;font-weight:700;margin:var(--space-1) 0 var(--space-2);">{{a.title}}</h2>
+          <p style="font-size:15px;line-height:1.6;opacity:0.85;margin:0 0 var(--space-3);">{{a.excerpt}}</p>
+          <sc-if value="{{a.expanded}}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:15px;line-height:1.7;opacity:0.85;display:grid;gap:var(--space-3);margin-bottom:var(--space-3);">
+              <sc-for list="{{a.paragraphs}}" as="para" hint-placeholder-count="2"><p style="margin:0;">{{para}}</p></sc-for>
+            </div>
+          </sc-if>
+          <button type="button" class="btn btn-ghost" onClick="{{ a.toggle }}">{{a.toggleLabel}}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+        </article>
+      </sc-for>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ARTICLES = [
+  { id: 'test-frequency', category: 'Water Care', meta: '4 min read', title: 'How Often Should You Really Test Your Water?',
+    excerpt: "Short answer: more often than most people do. Here's the rhythm that keeps you ahead of problems instead of chasing them.",
+    paragraphs: [
+      "During swim season, test your water at least twice a week — chlorine and pH shift faster than you'd think once the sun and swimmers get involved. Once a week is fine in the off-season when the pool is covered and quiet.",
+      "Always test after a heavy rain, a big pool party, or anytime you top off with a lot of fresh water. All three throw your chemistry out of whack fast, and a strip only takes thirty seconds.",
+      "If you're ever unsure, test first before adding anything. Guessing is how pools end up over-corrected in both directions.",
+    ]},
+  { id: 'green-overnight', category: 'Troubleshooting', meta: '5 min read', title: 'Why Your Pool Turns Green Overnight',
+    excerpt: "It's rarely as mysterious as it feels. Almost every overnight green pool comes down to one thing running low.",
+    paragraphs: [
+      "Algae is always present in trace amounts — it's everywhere in the environment. It only takes over when your chlorine drops low enough, for long enough, for it to get a foothold. A hot week, a missed test, or a big rainstorm diluting your chemicals is usually the trigger.",
+      "The fix is almost always the same: shock the pool to knock the chlorine level way up, then run your filter continuously for 24 hours so it can actually clear the water instead of just treating it.",
+      "If the green comes back within a week or two of clearing it, look at your stabilizer (CYA) level — too little and the sun burns off your chlorine before it can do its job.",
+    ]},
+  { id: 'liquid-vs-tablet', category: 'Chemicals 101', meta: '3 min read', title: 'Liquid vs. Tablet Chlorine: What\u2019s the Difference?',
+    excerpt: "Both sanitize your water. The difference is in how fast they act and how they behave over time.",
+    paragraphs: [
+      "Liquid chlorine works fast and leaves nothing behind — no stabilizer, no residue. That makes it great for quick top-ups or shocking, but it also means it burns off in sunlight faster.",
+      "Tablets dissolve slowly through a floater or feeder and already contain stabilizer (CYA), so they're better for steady, low-maintenance sanitizing over the course of a week. The tradeoff is that CYA builds up over time and eventually needs a partial drain to bring back down.",
+      "Most pools do well with tablets as the everyday sanitizer and liquid chlorine kept on hand for shocking or fast corrections.",
+    ]},
+  { id: 'five-minute-routine', category: 'Maintenance', meta: '3 min read', title: 'The 5-Minute Weekly Routine That Saves You Money',
+    excerpt: "A few small habits, done consistently, beat any single big fix — and they're a lot cheaper than an algae bloom.",
+    paragraphs: [
+      "Skim the surface and empty the skimmer baskets — debris that sits and breaks down eats into your chlorine for no reason.",
+      "Give the walls and steps a quick brush, especially in corners and behind ladders where algae likes to start.",
+      "Test your water before you assume it's fine. Catching a low chlorine reading on a Tuesday is a five-dollar fix. Catching it the following Saturday, after it's turned green, is a much bigger one.",
+    ]},
+  { id: 'test-strip-guide', category: 'Chemicals 101', meta: '4 min read', title: 'Understanding Your Test Strip: A Plain-English Guide',
+    excerpt: "Four numbers, four jobs. Here's what each color block on your strip is actually telling you.",
+    paragraphs: [
+      "Free Chlorine (FC) is your active sanitizer — the stuff actually killing bacteria and algae right now. Target range is 1–4 ppm.",
+      "pH measures how acidic or basic your water is. Too low and it irritates skin and eats away at equipment; too high and your chlorine stops working efficiently. Target range is 7.2–7.6.",
+      "Total Alkalinity (TA) is your water's ability to resist pH swings — think of it as a buffer. Target range is 80–120 ppm.",
+      "Cyanuric Acid (CYA), or stabilizer, protects your chlorine from being burned off by sunlight. Target range is 30–50 ppm — too little and you'll lose chlorine fast in the sun; too much and chlorine stops working as well.",
+    ]},
+];
+
+class Component extends DCLogic {
+  state = { openIds: {} };
+  toggle(id) { this.setState(s => ({ openIds: { ...s.openIds, [id]: !s.openIds[id] } })); }
+  renderVals() {
+    const openIds = this.state.openIds;
+    const articles = ARTICLES.map(a => ({
+      ...a, expanded: !!openIds[a.id],
+      toggleLabel: openIds[a.id] ? 'Show less' : 'Read the full article',
+      toggle: () => this.toggle(a.id),
+    }));
+    return { articles };
+  }
+}
+</script>
+</body>
+</html>

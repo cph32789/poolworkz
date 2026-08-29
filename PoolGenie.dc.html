@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/styles.css">
+<script src="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/_ds_bundle.js"></script>
+<style>
+  a { color: var(--color-accent-700); }
+  a:hover { color: var(--color-accent); }
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);">
+  <dc-import name="NavBar" active="genie" hint-size="100%,64px"></dc-import>
+
+  <div style="max-width:680px;margin:0 auto;padding:var(--space-8) var(--space-6);">
+    <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);margin-bottom:var(--space-6);">
+      <h1 style="font-family:var(--font-heading);font-size:36px;font-weight:700;margin:0 0 var(--space-2);">Pool Genie</h1>
+      <p style="font-size:15px;opacity:0.7;margin:0;">Tell the Genie what's happening and get a straight answer on what to do.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-5);">
+      <sc-for list="{{messages}}" as="m" hint-placeholder-count="2">
+        <div style="display:flex;{{m.justify}}">
+          <div style="max-width:80%;padding:var(--space-3) var(--space-4);background:{{m.bg}};color:{{m.color}};border:{{m.border}};">
+            <div style="{{m.kickerStyle}}">{{m.kicker}}</div>
+            <div style="font-size:14px;line-height:1.5;">{{m.text}}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{showOptions}}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);">
+        <sc-for list="{{options}}" as="o" hint-placeholder-count="2">
+          <button type="button" class="btn btn-secondary" onClick="{{ o.pick }}">{{o.label}}</button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{showResultActions}}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2);">
+        <sc-for list="{{resultProducts}}" as="p" hint-placeholder-count="1">
+          <button type="button" class="btn btn-secondary" onClick="{{ p.add }}">{{p.label}}</button>
+        </sc-for>
+      </div>
+      <button type="button" class="btn btn-ghost" style="margin-top:var(--space-3);" onClick="{{ restart }}">Ask about something else</button>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PRODUCTS = {
+  'liquid-chlorine': { name: 'Liquid Chlorine 10%', price: 9.99 },
+  shock: { name: 'Cal-Hypo Shock', price: 54.99 },
+  algaecide: { name: 'Algaecide Concentrate', price: 14.99 },
+  stabilizer: { name: 'Pool Conditioner (CYA)', price: 19.99 },
+  'test-strips': { name: '6-Way Test Strips', price: 11.99 },
+};
+
+const TREE = {
+  root: { q: "What's going on with your pool?", options: [
+    { label: 'Cloudy or hazy water', next: 'cloudy' },
+    { label: 'Green water or visible algae', next: 'algae' },
+    { label: 'Strong chlorine smell / stinging eyes', next: 'smell' },
+    { label: 'Chlorine reading is low or zero', next: 'lowcl' },
+  ]},
+  cloudy: { q: 'Got it. How long has it been cloudy?', options: [
+    { label: 'Just today', next: 'cloudy_today' },
+    { label: 'A few days or more', next: 'cloudy_persistent' },
+  ]},
+  cloudy_today: { title: 'Probably just needs to filter out', body: "A little haze after heavy use or a storm is normal. Run your filter for a full 24 hours and test again — grab a fresh test strip if you're not sure where your chlorine stands.", products: ['test-strips'] },
+  cloudy_persistent: { title: 'Time to shock it', body: "Cloudiness that lingers for days usually means your sanitizer has fallen behind. Shock the pool, run the filter continuously for 24 hours, and it should clear right up.", products: ['shock'] },
+  algae: { q: 'Is the water cloudy-green, or can you actually see algae on the walls or steps?', options: [
+    { label: 'Cloudy green water', next: 'algae_green' },
+    { label: 'Visible algae on surfaces', next: 'algae_visible' },
+  ]},
+  algae_green: { title: 'Shock treatment will clear this up', body: 'Green, cloudy water is early-stage algae — a double dose of shock and 24 hours of continuous filtering will usually knock it out. Retest after a day.', products: ['shock'] },
+  algae_visible: { title: 'Brush it, then shock it', body: "Visible algae on the walls or steps needs a brush before chemicals can reach it. Brush the affected surfaces, then shock the pool and follow up with algaecide to keep it from coming back.", products: ['shock', 'algaecide'] },
+  smell: { title: "That smell means you need MORE chlorine, not less", body: "Counterintuitive, but a strong chlorine smell and stinging eyes usually mean your chlorine is used up fighting contaminants (chloramines), not that there's too much. Shock the pool to burn those off — the smell should disappear within a day.", products: ['shock'] },
+  lowcl: { q: 'Has it been especially sunny and hot the last few days?', options: [
+    { label: 'Yes, lots of sun', next: 'lowcl_sun' },
+    { label: 'No, not really', next: 'lowcl_nosun' },
+  ]},
+  lowcl_sun: { title: 'Sun burns off chlorine fast', body: "UV rays break down chlorine quickly, especially without enough stabilizer (CYA) in the water. Add liquid chlorine to bring your level back up, and check your stabilizer next time you test — low CYA means you'll keep losing chlorine to the sun.", products: ['liquid-chlorine', 'stabilizer'] },
+  lowcl_nosun: { title: "Let's top up your chlorine", body: 'Add liquid chlorine to bring your level back into range. If it keeps dropping fast without an obvious reason, run a full test — head to the Test Results page for an exact dose.', products: ['liquid-chlorine'] },
+};
+
+class Component extends DCLogic {
+  state = { node: 'root', history: [], done: false, addedMap: {} };
+  componentDidMount() { this.setState({ history: [{ who: 'bot', text: TREE.root.q }] }); }
+
+  addToCart(id) {
+    const p = PRODUCTS[id];
+    let cart = [];
+    try { cart = JSON.parse(localStorage.getItem('pw_cart') || '[]'); } catch (e) {}
+    const idx = cart.findIndex(c => c.id === id);
+    if (idx >= 0) cart[idx] = { ...cart[idx], qty: cart[idx].qty + 1 };
+    else cart.push({ id, name: p.name, price: p.price, qty: 1 });
+    localStorage.setItem('pw_cart', JSON.stringify(cart));
+    this.setState(s => ({ addedMap: { ...s.addedMap, [id]: true } }));
+  }
+
+  pick = (label, next) => {
+    const history = [...this.state.history, { who: 'user', text: label }];
+    const nextNode = TREE[next];
+    if (nextNode.q) {
+      history.push({ who: 'bot', text: nextNode.q });
+      this.setState({ history, node: next, done: false });
+    } else {
+      history.push({ who: 'bot', text: nextNode.title + ' — ' + nextNode.body });
+      this.setState({ history, node: next, done: true });
+    }
+  };
+
+  restart = () => this.setState({ node: 'root', history: [{ who: 'bot', text: TREE.root.q }], done: false, addedMap: {} });
+
+  renderVals() {
+    const s = this.state;
+    const node = TREE[s.node];
+    const messages = s.history.map(m => ({
+      text: m.text, kicker: m.who === 'bot' ? 'Pool Genie' : 'You',
+      justify: m.who === 'bot' ? 'justify-content:flex-start;' : 'justify-content:flex-end;',
+      bg: m.who === 'bot' ? 'var(--color-neutral-100)' : 'var(--color-accent)',
+      color: m.who === 'bot' ? 'var(--color-text)' : '#fff',
+      border: m.who === 'bot' ? '2px solid var(--color-divider)' : 'none',
+      kickerStyle: 'font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.6;margin-bottom:4px;',
+    }));
+    const options = (!s.done && node.options) ? node.options.map(o => ({ label: o.label, pick: () => this.pick(o.label, o.next) })) : [];
+    const resultProducts = (s.done && node.products) ? node.products.map(id => ({
+      label: s.addedMap[id] ? `${PRODUCTS[id].name} — Added ✓` : `Add ${PRODUCTS[id].name} — $${PRODUCTS[id].price.toFixed(2)}`,
+      add: () => this.addToCart(id),
+    })) : [];
+    return {
+      messages, showOptions: !s.done && options.length > 0, options,
+      showResultActions: s.done, resultProducts, restart: this.restart,
+    };
+  }
+}
+</script>
+</body>
+</html>

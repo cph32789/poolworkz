@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/styles.css">
+<script src="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+  a { color: var(--color-accent-700); }
+  a:hover { color: var(--color-accent); }
+  .grayscale { filter: grayscale(1); }
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);">
+  <dc-import name="NavBar" active="home" hint-size="100%,64px"></dc-import>
+
+  <div style="max-width:1200px;margin:0 auto;padding:var(--space-8) var(--space-6);">
+    <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);margin-bottom:var(--space-7);display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;">
+      <div>
+        <h1 style="font-family:var(--font-heading);font-size:36px;font-weight:700;margin:0 0 var(--space-2);">Shop chemicals</h1>
+        <p style="font-size:15px;opacity:0.7;margin:0;">Delivering to {{zip}} · Order by 6pm for next delivery</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:var(--space-7);align-items:start;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5);">
+        <sc-for list="{{products}}" as="p" hint-placeholder-count="9">
+          <div class="card" style="display:flex;flex-direction:column;">
+            <div class="grayscale" style="width:100%;height:150px;margin-bottom:var(--space-3);">
+              <image-slot id="prod-{{p.id}}" shape="rect" placeholder="{{p.name}}"></image-slot>
+            </div>
+            <div class="card-kicker">{{p.category}}</div>
+            <div class="card-title">{{p.name}}</div>
+            <p class="card-body" style="margin-bottom:var(--space-2);">{{p.size}}</p>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;">
+              <span style="font-family:var(--font-heading);font-weight:700;font-size:18px;">${{p.priceLabel}}</span>
+              <div style="display:flex;align-items:center;gap:var(--space-2);">
+                <button type="button" class="btn btn-ghost btn-icon" aria-label="Decrease quantity" onClick="{{ p.dec }}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"></path></svg>
+                </button>
+                <span style="min-width:16px;text-align:center;font-weight:600;">{{p.qty}}</span>
+                <button type="button" class="btn btn-ghost btn-icon" aria-label="Increase quantity" onClick="{{ p.inc }}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                </button>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-3);" onClick="{{ p.add }}">Add to cart</button>
+          </div>
+        </sc-for>
+      </div>
+
+      <aside id="cart" class="card elev-md" style="position:sticky;top:var(--space-6);padding:var(--space-5);">
+        <sc-if value="{{checkoutDone}}" hint-placeholder-val="{{ false }}">
+          <div class="card-kicker">Order placed</div>
+          <div class="card-title">Thanks — we've got it.</div>
+          <p class="card-body">Your delivery to {{zip}} will be scheduled within 2 business days. A confirmation is on its way to your email.</p>
+          <button type="button" class="btn btn-secondary btn-block" style="margin-top:var(--space-3);" onClick="{{ continueShopping }}">Continue shopping</button>
+        </sc-if>
+        <sc-if value="{{showCartBody}}" hint-placeholder-val="{{ true }}">
+          <div class="card-kicker">Your order</div>
+          <sc-if value="{{cartEmpty}}" hint-placeholder-val="{{ true }}">
+            <p class="card-body">Your cart is empty. Add a few products to get started.</p>
+          </sc-if>
+          <sc-if value="{{cartHasItems}}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;gap:var(--space-3);margin:var(--space-3) 0;">
+              <sc-for list="{{cart}}" as="item" hint-placeholder-count="2">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-2);border-bottom:1px solid var(--color-divider);padding-bottom:var(--space-2);">
+                  <div>
+                    <div style="font-weight:600;font-size:14px;">{{item.name}}</div>
+                    <div style="font-size:12px;opacity:0.65;">${{item.priceLabel}} x {{item.qty}}</div>
+                  </div>
+                  <button type="button" class="btn btn-ghost btn-icon" aria-label="Remove" onClick="{{ item.remove }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                  </button>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-weight:700;font-family:var(--font-heading);font-size:16px;padding-top:var(--space-2);">
+              <span>Subtotal</span><span>${{subtotalLabel}}</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-4);" onClick="{{ checkout }}">Schedule delivery</button>
+          </sc-if>
+        </sc-if>
+      </aside>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PRODUCTS = [
+  { id: 'liquid-chlorine', name: 'Liquid Chlorine 10%', size: '1 gallon jug', price: 9.99, category: 'Sanitizer' },
+  { id: 'chlor-tabs', name: 'Chlorine Tablets 3"', size: '25 lb bucket', price: 89.99, category: 'Sanitizer' },
+  { id: 'shock', name: 'Cal-Hypo Shock', size: '12 x 1 lb bags', price: 54.99, category: 'Sanitizer' },
+  { id: 'muriatic-acid', name: 'Muriatic Acid', size: '1 gallon jug', price: 8.49, category: 'Balancer' },
+  { id: 'soda-ash', name: 'pH Increaser', size: '5 lb bag', price: 12.99, category: 'Balancer' },
+  { id: 'baking-soda', name: 'Alkalinity Increaser', size: '10 lb bag', price: 16.99, category: 'Balancer' },
+  { id: 'stabilizer', name: 'Pool Conditioner (CYA)', size: '4 lb bag', price: 19.99, category: 'Balancer' },
+  { id: 'algaecide', name: 'Algaecide Concentrate', size: '1 quart', price: 14.99, category: 'Care' },
+  { id: 'test-strips', name: '6-Way Test Strips', size: '50 count', price: 11.99, category: 'Testing' },
+];
+
+class Component extends DCLogic {
+  state = { qtyMap: {}, cart: [], zip: '30301', checkoutDone: false };
+  componentDidMount() {
+    this.loadCart();
+    try { const u = JSON.parse(localStorage.getItem('pw_user')); if (u && u.zip) this.setState({ zip: u.zip }); } catch (e) {}
+  }
+  loadCart() {
+    try { this.setState({ cart: JSON.parse(localStorage.getItem('pw_cart') || '[]') }); } catch (e) { this.setState({ cart: [] }); }
+  }
+  saveCart(cart) { localStorage.setItem('pw_cart', JSON.stringify(cart)); this.setState({ cart }); }
+  setQty(id, n) { this.setState(s => ({ qtyMap: { ...s.qtyMap, [id]: Math.max(1, n) } })); }
+  addToCart(product) {
+    const qty = this.state.qtyMap[product.id] || 1;
+    const cart = [...this.state.cart];
+    const idx = cart.findIndex(c => c.id === product.id);
+    if (idx >= 0) cart[idx] = { ...cart[idx], qty: cart[idx].qty + qty };
+    else cart.push({ id: product.id, name: product.name, price: product.price, qty });
+    this.saveCart(cart);
+    this.setQty(product.id, 1);
+  }
+  removeFromCart(id) { this.saveCart(this.state.cart.filter(c => c.id !== id)); }
+  checkout = () => this.setState({ checkoutDone: true });
+  continueShopping = () => { this.saveCart([]); this.setState({ checkoutDone: false }); };
+  renderVals() {
+    const s = this.state;
+    const products = PRODUCTS.map(p => ({
+      ...p,
+      priceLabel: p.price.toFixed(2),
+      qty: s.qtyMap[p.id] || 1,
+      inc: () => this.setQty(p.id, (s.qtyMap[p.id] || 1) + 1),
+      dec: () => this.setQty(p.id, (s.qtyMap[p.id] || 1) - 1),
+      add: () => this.addToCart(p),
+    }));
+    const cart = s.cart.map(c => ({ ...c, priceLabel: c.price.toFixed(2), remove: () => this.removeFromCart(c.id) }));
+    const subtotal = s.cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+    return {
+      products, cart, zip: s.zip, checkoutDone: s.checkoutDone,
+      showCartBody: !s.checkoutDone,
+      cartEmpty: s.cart.length === 0, cartHasItems: s.cart.length > 0,
+      subtotalLabel: subtotal.toFixed(2),
+      checkout: this.checkout, continueShopping: this.continueShopping,
+    };
+  }
+}
+</script>
+</body>
+</html>

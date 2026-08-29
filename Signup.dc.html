@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/styles.css">
+<script src="_ds/modernist-e855b6f6-f703-4388-a3d9-1b6f321de553/_ds_bundle.js"></script>
+<style>
+  a { color: var(--color-accent-700); }
+  a:hover { color: var(--color-accent); }
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-5) var(--space-8);border-bottom:2px solid var(--color-divider);">
+    <span style="font-family:var(--font-heading);font-weight:700;letter-spacing:0.02em;font-size:20px;">POOLWORKZ</span>
+    <sc-if value="{{showLoginLink}}" hint-placeholder-val="{{ true }}">
+      <button type="button" class="btn btn-ghost" onClick="{{ goLogin }}">Log in</button>
+    </sc-if>
+    <sc-if value="{{showSignupLink}}" hint-placeholder-val="{{ false }}">
+      <button type="button" class="btn btn-ghost" onClick="{{ goZip }}">Back</button>
+    </sc-if>
+  </div>
+
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:var(--space-8) var(--space-4);">
+    <div style="max-width:460px;width:100%;">
+
+      <sc-if value="{{isZipStep}}" hint-placeholder-val="{{ true }}">
+        <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);">
+          <h1 style="font-family:var(--font-heading);font-size:40px;font-weight:700;line-height:1.05;margin:0 0 var(--space-3);">Pool care, delivered.</h1>
+          <p style="font-size:16px;opacity:0.75;margin:0 0 var(--space-6);max-width:40ch;">Chlorine, acid, shock and more — dropped at your door before you run out. Enter your zip to see if we deliver to you.</p>
+          <div class="field"><label for="zip-input">ZIP code</label>
+            <input class="input" id="zip-input" inputmode="numeric" maxlength="5" placeholder="e.g. 30301" value="{{zip}}" onChange="{{ onZipChange }}"></div>
+          <sc-if value="{{zipError}}" hint-placeholder-val="{{ false }}"><p style="color:var(--color-accent-700);font-size:13px;margin:var(--space-2) 0 0;">{{zipError}}</p></sc-if>
+          <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-4);" onClick="{{ checkZip }}">Check availability
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isResultStep}}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{serviced}}" hint-placeholder-val="{{ true }}">
+          <div class="card elev-md">
+            <div class="card-kicker">{{zip}}</div>
+            <div class="card-title">Good news — we deliver to you.</div>
+            <p class="card-body">Poolworkz runs regular delivery routes in your area. Create an account and we'll get your first order scheduled.</p>
+            <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-4);" onClick="{{ goAccount }}">Create my account
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </button>
+          </div>
+        </sc-if>
+        <sc-if value="{{notServiced}}" hint-placeholder-val="{{ false }}">
+          <div class="card elev-md">
+            <div class="card-kicker">{{zip}}</div>
+            <div class="card-title">We're not in {{zip}} just yet.</div>
+            <p class="card-body">We're adding new delivery routes every month. Leave your email and we'll let you know the moment we launch near you.</p>
+            <div class="field" style="margin-top:var(--space-3);"><label for="waitlist-email">Email</label>
+              <input class="input" id="waitlist-email" type="email" placeholder="you@email.com" value="{{waitlistEmail}}" onChange="{{ onWaitlistChange }}"></div>
+            <button type="button" class="btn btn-secondary btn-block" style="margin-top:var(--space-3);" onClick="{{ joinWaitlist }}">{{waitlistLabel}}</button>
+            <button type="button" class="btn btn-ghost btn-block" style="margin-top:var(--space-2);" onClick="{{ goZip }}">Try a different zip</button>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{isAccountStep}}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);">
+          <h1 style="font-family:var(--font-heading);font-size:32px;font-weight:700;margin:0 0 var(--space-2);">Create your account</h1>
+          <p style="font-size:14px;opacity:0.7;margin:0 0 var(--space-5);">Delivering to {{zip}}. It only takes a minute.</p>
+          <div class="field"><label for="acc-name">Full name</label>
+            <input class="input" id="acc-name" placeholder="Jamie Rivera" value="{{name}}" onChange="{{ onNameChange }}"></div>
+          <div class="field"><label for="acc-email">Email</label>
+            <input class="input" id="acc-email" type="email" placeholder="you@email.com" value="{{email}}" onChange="{{ onEmailChange }}"></div>
+          <div class="field"><label for="acc-pass">Password</label>
+            <input class="input" id="acc-pass" type="password" placeholder="At least 8 characters" value="{{password}}" onChange="{{ onPasswordChange }}"></div>
+          <sc-if value="{{accountError}}" hint-placeholder-val="{{ false }}"><p style="color:var(--color-accent-700);font-size:13px;margin:0 0 var(--space-2);">{{accountError}}</p></sc-if>
+          <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-3);" onClick="{{ createAccount }}">Create account &amp; continue</button>
+          <p style="font-size:13px;opacity:0.65;margin-top:var(--space-4);text-align:left;">By continuing you agree to Poolworkz's Terms and Privacy Policy.</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isLoginStep}}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);">
+          <h1 style="font-family:var(--font-heading);font-size:32px;font-weight:700;margin:0 0 var(--space-5);">Log in</h1>
+          <div class="field"><label for="login-email">Email</label>
+            <input class="input" id="login-email" type="email" placeholder="you@email.com" value="{{loginEmail}}" onChange="{{ onLoginEmailChange }}"></div>
+          <div class="field"><label for="login-pass">Password</label>
+            <input class="input" id="login-pass" type="password" placeholder="Your password" value="{{loginPassword}}" onChange="{{ onLoginPasswordChange }}"></div>
+          <sc-if value="{{loginError}}" hint-placeholder-val="{{ false }}"><p style="color:var(--color-accent-700);font-size:13px;margin:0 0 var(--space-2);">{{loginError}}</p></sc-if>
+          <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-3);" onClick="{{ login }}">Log in</button>
+          <button type="button" class="btn btn-ghost btn-block" style="margin-top:var(--space-2);" onClick="{{ goZip }}">New here? Check your zip</button>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    step: (typeof location !== 'undefined' && location.hash === '#login') ? 'login' : 'zip',
+    zip: '', zipError: '', serviced: null,
+    waitlistEmail: '', waitlistLabel: "Join the waitlist",
+    name: '', email: '', password: '', accountError: '',
+    loginEmail: '', loginPassword: '', loginError: '',
+  };
+  onZipChange = e => this.setState({ zip: e.target.value.replace(/[^0-9]/g, ''), zipError: '' });
+  checkZip = () => {
+    const zip = this.state.zip;
+    if (!/^\d{5}$/.test(zip)) { this.setState({ zipError: 'Enter a valid 5-digit zip code.' }); return; }
+    const notServiced = ['00000', '99999'].includes(zip);
+    this.setState({ step: 'result', serviced: !notServiced });
+  };
+  onWaitlistChange = e => this.setState({ waitlistEmail: e.target.value });
+  joinWaitlist = () => this.setState({ waitlistLabel: "You're on the list!" });
+  goZip = () => this.setState({ step: 'zip', zipError: '' });
+  goAccount = () => this.setState({ step: 'account' });
+  goLogin = () => this.setState({ step: 'login' });
+  onNameChange = e => this.setState({ name: e.target.value });
+  onEmailChange = e => this.setState({ email: e.target.value });
+  onPasswordChange = e => this.setState({ password: e.target.value });
+  createAccount = () => {
+    const { name, email, password, zip } = this.state;
+    if (!name.trim() || !email.trim() || password.length < 8) {
+      this.setState({ accountError: 'Fill in your name, email, and an 8+ character password.' });
+      return;
+    }
+    localStorage.setItem('pw_user', JSON.stringify({ name, email, zip }));
+    window.location.href = 'Home.dc.html';
+  };
+  onLoginEmailChange = e => this.setState({ loginEmail: e.target.value });
+  onLoginPasswordChange = e => this.setState({ loginPassword: e.target.value });
+  login = () => {
+    const { loginEmail, loginPassword } = this.state;
+    if (!loginEmail.trim() || !loginPassword) { this.setState({ loginError: 'Enter your email and password.' }); return; }
+    let user = { name: loginEmail.split('@')[0], email: loginEmail, zip: this.state.zip || '30301' };
+    try { const existing = JSON.parse(localStorage.getItem('pw_user')); if (existing) user = existing; } catch (e) {}
+    localStorage.setItem('pw_user', JSON.stringify(user));
+    window.location.href = 'Home.dc.html';
+  };
+  renderVals() {
+    const s = this.state;
+    return {
+      isZipStep: s.step === 'zip', isResultStep: s.step === 'result',
+      isAccountStep: s.step === 'account', isLoginStep: s.step === 'login',
+      showLoginLink: s.step === 'zip', showSignupLink: s.step !== 'zip',
+      zip: s.zip, zipError: s.zipError, serviced: s.serviced === true, notServiced: s.serviced === false,
+      waitlistEmail: s.waitlistEmail, waitlistLabel: s.waitlistLabel,
+      name: s.name, email: s.email, password: s.password, accountError: s.accountError,
+      loginEmail: s.loginEmail, loginPassword: s.loginPassword, loginError: s.loginError,
+      onZipChange: this.onZipChange, checkZip: this.checkZip, onWaitlistChange: this.onWaitlistChange,
+      joinWaitlist: this.joinWaitlist, goZip: this.goZip, goAccount: this.goAccount, goLogin: this.goLogin,
+      onNameChange: this.onNameChange, onEmailChange: this.onEmailChange, onPasswordChange: this.onPasswordChange,
+      createAccount: this.createAccount, onLoginEmailChange: this.onLoginEmailChange,
+      onLoginPasswordChange: this.onLoginPasswordChange, login: this.login,
+    };
+  }
+}
+</script>
+</body>
+</html>
