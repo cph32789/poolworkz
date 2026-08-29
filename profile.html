@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile — Poolworkz</title>
+<link rel="stylesheet" href="assets/styles.css">
+<style>select.input { appearance: auto; }</style>
+</head>
+<body>
+<div class="wf-banner">Wireframe preview — only page navigation works, nothing else is functional.</div>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);">
+  <nav class="nav" style="padding:0 var(--space-8);">
+    <a href="index.html" class="nav-brand" style="text-decoration:none;font-weight:700;letter-spacing:0.02em;color:inherit;">POOLWORKZ</a>
+    <a href="shop.html">Shop</a>
+    <a href="profile.html" aria-current="page">Profile</a>
+    <a href="test-results.html">Test Results</a>
+    <a href="pool-genie.html">Pool Genie</a>
+    <a href="blog.html">Blog</a>
+    <a href="shop.html#cart" class="btn btn-ghost btn-icon" aria-label="Cart" style="position:relative;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+    </a>
+  </nav>
+
+  <div style="max-width:760px;margin:0 auto;padding:var(--space-8) var(--space-6);">
+    <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);margin-bottom:var(--space-7);">
+      <h1 style="font-family:var(--font-heading);font-size:36px;font-weight:700;margin:0 0 var(--space-2);">Your profile</h1>
+      <p style="font-size:15px;opacity:0.7;margin:0;">Account details and your pool's size — this is what we use to recommend the right amount of chemical.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--space-6);">
+      <div class="card-kicker">Account</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-top:var(--space-3);">
+        <div><div style="font-size:12px;opacity:0.6;">Name</div><div style="font-weight:600;">Pool Owner</div></div>
+        <div><div style="font-size:12px;opacity:0.6;">Email</div><div style="font-weight:600;">you@email.com</div></div>
+        <div><div style="font-size:12px;opacity:0.6;">Delivery zip</div><div style="font-weight:600;">30301</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-kicker">Pool details</div>
+      <div class="card-title" style="margin-bottom:var(--space-3);">Estimate your pool's volume</div>
+
+      <div class="field"><label id="shape-label" for="shape-select">Pool shape</label>
+        <select class="input" id="shape-select">
+          <option value="rectangle" selected>Rectangle</option>
+          <option value="oval">Oval</option>
+          <option value="circle">Round / Circle</option>
+          <option value="kidney">Kidney / Freeform</option>
+        </select>
+      </div>
+
+      <div class="grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);">
+        <div class="field"><label for="length">Length (ft)</label>
+          <input class="input" id="length" inputmode="decimal" value="32"></div>
+        <div class="field"><label for="width">Width (ft)</label>
+          <input class="input" id="width" inputmode="decimal" value="16"></div>
+        <div class="field"><label for="depth">Average depth (ft)</label>
+          <input class="input" id="depth" inputmode="decimal" value="5"></div>
+      </div>
+      <p style="font-size:12px;opacity:0.6;margin-top:-4px;">Average depth = (shallow end + deep end) ÷ 2.</p>
+
+      <div style="border-top:2px solid var(--color-divider);margin-top:var(--space-5);padding-top:var(--space-4);display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:var(--space-2);">
+        <span style="font-size:13px;opacity:0.65;">Estimated volume</span>
+        <span style="font-family:var(--font-heading);font-size:32px;font-weight:700;">19,200 gal</span>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-5);">Save pool details</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

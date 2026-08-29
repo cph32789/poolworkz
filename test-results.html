@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test Results — Poolworkz</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="wf-banner">Wireframe preview — only page navigation works, nothing else is functional.</div>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);">
+  <nav class="nav" style="padding:0 var(--space-8);">
+    <a href="index.html" class="nav-brand" style="text-decoration:none;font-weight:700;letter-spacing:0.02em;color:inherit;">POOLWORKZ</a>
+    <a href="shop.html">Shop</a>
+    <a href="profile.html">Profile</a>
+    <a href="test-results.html" aria-current="page">Test Results</a>
+    <a href="pool-genie.html">Pool Genie</a>
+    <a href="blog.html">Blog</a>
+    <a href="shop.html#cart" class="btn btn-ghost btn-icon" aria-label="Cart" style="position:relative;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+    </a>
+  </nav>
+
+  <div style="max-width:760px;margin:0 auto;padding:var(--space-8) var(--space-6);">
+    <div style="border-top:2px solid var(--color-divider);padding-top:var(--space-5);margin-bottom:var(--space-7);">
+      <h1 style="font-family:var(--font-heading);font-size:36px;font-weight:700;margin:0 0 var(--space-2);">Test strip results</h1>
+      <p style="font-size:15px;opacity:0.7;margin:0;">Enter what your test strip reads and we'll tell you exactly what — and how much — to add.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--space-6);">
+      <div class="card-kicker">Pool volume</div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin-top:var(--space-2);">
+        <div class="field" style="max-width:220px;"><label for="gallons">Gallons</label>
+          <input class="input" id="gallons" inputmode="numeric" value="15000"></div>
+        <a href="profile.html" style="font-size:13px;">Update from profile →</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-kicker">Your readings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-top:var(--space-2);">
+        <div class="field"><label for="fc">Free Chlorine (ppm)</label>
+          <input class="input" id="fc" inputmode="decimal" value="1"></div>
+        <div class="field"><label for="ph">pH</label>
+          <input class="input" id="ph" inputmode="decimal" value="7.8"></div>
+        <div class="field"><label for="ta">Total Alkalinity (ppm)</label>
+          <input class="input" id="ta" inputmode="decimal" value="70"></div>
+        <div class="field"><label for="cya">Cyanuric Acid (ppm) — optional</label>
+          <input class="input" id="cya" inputmode="decimal" value="25"></div>
+      </div>
+      <button type="button" class="btn btn-primary btn-block" style="margin-top:var(--space-4);">Get my recommendation</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
